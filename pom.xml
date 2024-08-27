@@ -4,13 +4,18 @@
     <parent>
         <groupId>in.virit.sb</groupId>
         <artifactId>viritin-project-parent</artifactId>
-        <version>0.0.3</version>
+        <version>0.0.4</version>
         <relativePath/>
     </parent>
     <artifactId>example</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    
+
+    <properties>
+        <java.version>17</java.version>
+        <vaadin.version>24.4.10</vaadin.version>
+    </properties>
+
     <!-- 
         This is optional, but it can be a good idea to dictate Vaadin version(s) via bom in the project:
 
@@ -22,7 +27,7 @@
             <dependency>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-bom</artifactId>
-                <version>24.4.4</version>
+                <version>24.4.10</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
