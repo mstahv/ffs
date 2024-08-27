@@ -4,6 +4,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.details.Details;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.html.AnchorTarget;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -186,6 +188,8 @@ public class MainView extends VVerticalLayout {
         add(new VButton("Reload session", e -> {
             session.reload();
         }).withThemeVariants(ButtonVariant.LUMO_TERTIARY));
+
+        add(new Anchor("https://github.com/mstahv/ffs/", "Source code & bug reports", AnchorTarget.BLANK));
 
     }
 
