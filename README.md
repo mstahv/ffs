@@ -8,3 +8,6 @@ Lost my nerves with "non-optimal UX", so had to write my own. This is at very ea
  * You can save "favourite" trip details (card, license place, number of passengers etc)
  * Two clicks instead of twenty
    
+Screenshot:
+
+![alt text](https://github.com/mstahv/ffs/blob/main/ffs.png?raw=true)
