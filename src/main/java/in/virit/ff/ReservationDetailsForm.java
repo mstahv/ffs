@@ -19,7 +19,7 @@ import java.util.List;
 
 public class ReservationDetailsForm extends BeanValidationForm<ReservationDetails> {
 
-    private VTextField name = new VTextField("Name")
+    private VTextField name = new VTextField("Optional: save as for later usage...")
             .withPlaceholder("Optional, fill to quick book later...");
     private VSelect<VehicleType> vehicleType = new VSelect<VehicleType>("Vehicle Type")
             .withItemLabelGenerator(VehicleType::name);

@@ -9,13 +9,16 @@ import in.virit.ff.bookingdtos.FerryRoute;
 import in.virit.ff.bookingdtos.Harbor;
 import in.virit.ff.bookingdtos.ReservationDetails;
 import in.virit.ff.bookingdtos.Tour;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.FormElement;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
@@ -23,36 +26,57 @@ import org.springframework.web.context.annotation.SessionScope;
 import java.io.IOException;
 import java.net.CookieManager;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+
+import static in.virit.ff.BookingService.yyyyMMdd;
 
 @SessionScope
 @Component
 public class Session {
 
+    public static final String SETTINGS_KEY = "localStorageSettings";
+    HttpClient client = buildHttpClient();
     private LocalStorageSettings localStorageSettings;
-
-    private Connection connection = Jsoup.newSession()
-            .followRedirects(true);
-
-    HttpClient client = HttpClient.newBuilder()
-            .cookieHandler(new CookieManager())
-            .version(HttpClient.Version.HTTP_2)
-            //.followRedirects(HttpClient.Redirect.ALWAYS)
-            .build();
     private String username;
     private String password;
+
+    private static HttpClient buildHttpClient() {
+        return HttpClient.newBuilder()
+                .cookieHandler(new CookieManager())
+                .version(HttpClient.Version.HTTP_2)
+                .followRedirects(HttpClient.Redirect.ALWAYS)
+                .build();
+    }
+
+    private static String getFormDataAsString(Map<String, String> formData) {
+        StringBuilder formBodyBuilder = new StringBuilder();
+        for (Map.Entry<String, String> singleEntry : formData.entrySet()) {
+            if (formBodyBuilder.length() > 0) {
+                formBodyBuilder.append("&");
+            }
+            formBodyBuilder.append(URLEncoder.encode(singleEntry.getKey(), StandardCharsets.UTF_8));
+            formBodyBuilder.append("=");
+            formBodyBuilder.append(URLEncoder.encode(singleEntry.getValue(), StandardCharsets.UTF_8));
+        }
+        return formBodyBuilder.toString();
+    }
 
     public boolean isLoggedIn() {
         return username != null;
     }
 
     public void login() {
-        WebStorage.getItem("localStorageSettings", s -> {
-            if(s == null) {
+        WebStorage.getItem(SETTINGS_KEY, s -> {
+            if (s == null) {
                 UI.getCurrent().navigate(LoginView.class);
                 return;
             }
@@ -99,7 +123,7 @@ public class Session {
                     .POST(HttpRequest.BodyPublishers.ofString("username=" + username + "&password=" + password + "&login=Login&woocommerce-login-nonce=" + nonce))
                     .build(), HttpResponse.BodyHandlers.ofString());
 
-            if(loginResponse.statusCode()> 399) {
+            if (loginResponse.statusCode() > 399) {
                 throw new RuntimeException("Login failed with status code: " + loginResponse.statusCode());
             }
         } catch (IOException e) {
@@ -118,7 +142,7 @@ public class Session {
 
     private void persistLocalStorageSettings() {
         try {
-            WebStorage.setItem("localStorageSettings", new ObjectMapper().writeValueAsString(localStorageSettings));
+            WebStorage.setItem(SETTINGS_KEY, new ObjectMapper().writeValueAsString(localStorageSettings));
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -139,17 +163,17 @@ public class Session {
     }
 
     public void saveReservationDetails(ReservationDetails rd) {
-        if(rd.name() == null || rd.name().isEmpty()) {
+        if (rd.name() == null || rd.name().isEmpty()) {
             Notification.show("Name must be set!");
             return;
         }
-        getLocalStorageSettings().getSavedDetails().add(rd);
+        getLocalStorageSettings().getSavedDetails().put(rd.name(), rd);
         getLocalStorageSettings().setLastReservationDetails(rd);
         persistLocalStorageSettings();
     }
 
     public LocalStorageSettings getLocalStorageSettings() {
-        if(localStorageSettings == null) {
+        if (localStorageSettings == null) {
             localStorageSettings = new LocalStorageSettings();
         }
         return localStorageSettings;
@@ -220,26 +244,40 @@ Content-Disposition: form-data; name="finferries-vessel"
 -----------------------------3952403640432312113951113417--
         */
 
-        MultipartEntity entity = new MultipartEntity();
-        entity.addPart("add-to-cart", toStringBody("35")); // 35 🤷‍
-        entity.addPart("finferries-line", toStringBody(fr.id()));
-        entity.addPart("finferries-passenger-count", toStringBody(rd.passengerCount() + ""));
-        entity.addPart("finferries-harbor-from", toStringBody(from.id()+""));
-        entity.addPart("finferries-harbor-to", toStringBody(to.id()+""));
-        entity.addPart("finferries-departure-date", toStringBody(localDate.toString()));
-        entity.addPart("finferries-departure-time", toStringBody(tour.start().toString()));
-        entity.addPart("finferries-vehicle-type", toStringBody(rd.vehicleType().id()+""));
-        entity.addPart("finferries-pets", toStringBody("false"));
-        entity.addPart("finferries-dangerous-goods", toStringBody("false"));
-        entity.addPart("finferries-assistant", toStringBody("false"));
-        entity.addPart("finferries-animal-transport", toStringBody("false"));
-        entity.addPart("finferries-additional-comments", toStringBody(rd.comments()));
-        entity.addPart("finferries-restaurant-count", toStringBody("0"));
-        entity.addPart("finferries-vessel", toStringBody(tour.vesselId()));
+        HttpEntity entity = MultipartEntityBuilder.create()
+                .setCharset(StandardCharsets.US_ASCII)
+                .setMode(HttpMultipartMode.BROWSER_COMPATIBLE)
+                .addTextBody("add-to-cart", "35") // 35 is the product id for a ferry trip ??
+                .addTextBody("finferries-line", fr.id())
+                .addTextBody("finferries-passenger-count", rd.passengerCount() + "")
+                .addTextBody("finferries-harbor-from", from.id() + "")
+                .addTextBody("finferries-harbor-to", to.id() + "")
+                .addTextBody("finferries-departure-date", yyyyMMdd.format(localDate))
+                .addTextBody("finferries-departure-time", tour.start().truncatedTo(ChronoUnit.MINUTES).toString())
+                .addTextBody("finferries-vehicle-type", rd.vehicleType().id() + "")
+                .addTextBody("finferries-pets", "false")
+                .addTextBody("finferries-dangerous-goods", "false")
+                .addTextBody("finferries-assistant", "false")
+                .addTextBody("finferries-animal-transport", "false")
+                .addTextBody("finferries-additional-comments", rd.comments())
+                .addTextBody("finferries-restaurant-count", "0")
+                .addTextBody("finferries-vessel", tour.vesselId())
+                .build();
+
+        try {
+            String string = IOUtils.toString(entity.getContent());
+            System.out.println(string);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        Header contentType = entity.getContentType();
+
         try {
             HttpResponse<String> response = client.send(HttpRequest.newBuilder()
                     .uri(URI.create("https://booking.finferries.fi/checkout-fi/"))
-                    .header("Content-Type", "multipart/form-data; boundary=3952403640432312113951113417")
+                    .header("Referer", "https://booking.finferries.fi/?from=%s&to=%s".formatted(from.id(), to.id()))
+                    .header(contentType.getName(), contentType.getValue())
                     .POST(HttpRequest.BodyPublishers.ofInputStream(() -> {
                         try {
                             return entity.getContent();
@@ -248,40 +286,41 @@ Content-Disposition: form-data; name="finferries-vessel"
                         }
                     }))
                     .build(), HttpResponse.BodyHandlers.ofString());
-            if(response.statusCode() > 399) {
-                throw new RuntimeException("Booking failed with status code: " + response.statusCode());
-            }
+            response.previousResponse().ifPresent(r -> {
+                // String body = r.body();
+                // System.out.println(r.statusCode());
+
+            });
             String bodyHtml = response.body();
+            // Only needed for XHR confirmation, not needed for form submit
+            // Extract security nonce like this from the body: "update_order_review_nonce":"e9ec9c0cb3"
+            // String securityNonce = StringUtils.substringBetween(bodyHtml, "\"update_order_review_nonce\":\"", "\"");
 
-            Connection connection = Jsoup.newSession();
+            FormElement formElement1 = Jsoup.parse(bodyHtml).forms().get(0);
+            formElement1.selectXpath("//input[@name='terms']").attr("checked", "checked");
+            List<Connection.KeyVal> keyVals = formElement1.formData();
 
-            String body = Jsoup.connect("https://booking.finferries.fi/checkout-fi/")
-                    .data("security", "e9ec9c0cb3")
-                    .data("country", "FI")
-                    .data("s_country", "FI")
-                    .data("has_full_address", "true")
-                    .data("post_data", "billing_first_name=Matti&billing_last_name=Tahvonen&billing_country=FI&billing_phone=%2B358443029728&billing_email=matti%40tahvonen.com&terms-field=1&woocommerce-process-checkout-nonce=f40f00a963&_wp_http_referer=%2Fcheckout-fi%2F")
-                    .execute().body();
+            // https://booking.finferries.fi/?wc-ajax=update_order_review // new nonce?
+            MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create()
+                    .setCharset(StandardCharsets.US_ASCII)
+                    .setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            for (Connection.KeyVal keyVal : keyVals) {
+                multipartEntityBuilder.addTextBody(keyVal.key(), keyVal.value());
+            }
+            HttpEntity entity1 = multipartEntityBuilder.build();
+            Header contentType1 = entity1.getContentType();
 
-            Document docu = Jsoup.parse(bodyHtml);
-            FormElement formElement = docu.forms().get(0);
-
-            formElement.submit();
-
-            // security=e9ec9c0cb3
-            // &country=FI
-            // &s_country=FI
-            // &has_full_address=true
-            // &post_data=billing_first_name%3DMatti%26
-            // billing_last_name%3DTahvonen%26
-            // billing_country%3DFI%26
-            // billing_phone%3D%252B358443029728%26
-            // billing_email%3Dmatti%2540tahvonen.com%26
-            // terms-field%3D1%26
-            // woocommerce-process-checkout-nonce%3Df40f00a963%26
-            // _wp_http_referer%3D%252Fcheckout-fi%252F
-
-
+            HttpResponse<String> response1 = getClient().send(HttpRequest.newBuilder()
+                    .uri(URI.create("https://booking.finferries.fi/?wc-ajax=checkout"))
+                    .header(contentType1.getName(), contentType1.getValue())
+                    .POST(HttpRequest.BodyPublishers.ofInputStream(() -> {
+                        try {
+                            return entity1.getContent();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }))
+                    .build(), HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -289,5 +328,20 @@ Content-Disposition: form-data; name="finferries-vessel"
 
     private ContentBody toStringBody(String str) {
         return new StringBody(str, ContentType.TEXT_PLAIN);
+    }
+
+    public void reload() {
+        client = buildHttpClient();
+        username = null;
+        localStorageSettings = null;
+        UI.getCurrent().navigate(MainView.class);
+    }
+
+    public void saveLastTrip(FerryRoute value, Harbor from, Harbor to) {
+        getLocalStorageSettings().setLastRouteId(value.id());
+        // Note, the order is reversed here on purpose, you'll probably want to go back to the same route next
+        getLocalStorageSettings().setLastHarborFromId(to.id());
+        getLocalStorageSettings().setLastHarborToId(from.id());
+        persistLocalStorageSettings();
     }
 }

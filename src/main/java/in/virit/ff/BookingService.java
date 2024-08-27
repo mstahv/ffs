@@ -81,7 +81,7 @@ public class BookingService {
 
     }
 
-    private static DateTimeFormatter df =  DateTimeFormatter.ofPattern("yyyyMMdd");
+    public static DateTimeFormatter yyyyMMdd =  DateTimeFormatter.ofPattern("yyyyMMdd");
 
     // https://booking.finferries.fi/wp-json/finferries/v1/tour/search?date=20240820&from=57&to=52
     public List<Tour> getTours(LocalDate date, Harbor from, Harbor to) {
@@ -89,11 +89,19 @@ public class BookingService {
 
         try {
             HttpResponse<String> response = client.send(HttpRequest.newBuilder()
-                    .uri(new URI("https://booking.finferries.fi/wp-json/finferries/v1/tour/search?date=" + df.format(date) + "&from=" + from.id() + "&to=" + to.id()))
+                    .uri(new URI("https://booking.finferries.fi/wp-json/finferries/v1/tour/search?date=" + yyyyMMdd.format(date) + "&from=" + from.id() + "&to=" + to.id()))
                     .GET()
                     .build(), HttpResponse.BodyHandlers.ofString());
 
-            JsonNode jsonNode = new ObjectMapper().readTree(response.body());
+            boolean redirected = response.previousResponse().isPresent() && response.previousResponse().get().statusCode() == 302;
+
+            if(redirected) {
+                session.reload();
+                throw new RuntimeException("Session timout");
+            }
+
+            String body = response.body();
+            JsonNode jsonNode = new ObjectMapper().readTree(body);
 
             /*
             {
@@ -139,8 +147,20 @@ public class BookingService {
                 LocalTime localTime = LocalTime.parse(time);
                 String vesselName = tour.get("vessel").get("name").asText();
                 String vesselId = tour.get("vessel").get("id").asText();
-                String harbor = answer.getValue().get("harbors").get(harborId).get("name").asText();
-                availableTours.add(new Tour(localTime,vesselId,vesselName, harbor));
+                JsonNode harbors = answer.getValue().get("harbors");
+                String startHarbor = harbors.get(harborId).get("name").asText();
+                String route = "";
+                for(int j = 1; j< tour.get("tour").size(); j++) {
+                    JsonNode toNode = tour.get("tour").get(j);
+                    String toHarborId = toNode.get("harbor").asText();
+                    String harbourName = harbors.get(toHarborId).get("name").asText();
+                    route += "→" + harbourName;
+                    String toTime = toNode.get("time").asText();
+                    if(!toTime.isEmpty()) {
+                        route += " " + toTime;
+                    }
+                }
+                availableTours.add(new Tour(localTime,vesselId,vesselName, startHarbor, route));
             };
             return availableTours;
         } catch (IOException e) {

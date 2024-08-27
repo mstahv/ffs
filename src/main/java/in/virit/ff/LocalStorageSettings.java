@@ -1,26 +1,26 @@
 package in.virit.ff;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.vaadin.flow.component.dependency.JsModule;
 import in.virit.ff.bookingdtos.ReservationDetails;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class LocalStorageSettings {
 
-    private List<ReservationDetails> savedDetails = new ArrayList<>();
+    private Map<String,ReservationDetails> savedDetails = new LinkedHashMap<>();
     private String lastRouteId = "2807";
     private int lastHarborFromId = 52; // Default: Granvik
     private int lastHarborToId = 57; // Heisala
-    private int lastDetailsIndex;
+    private String lastDetails;
     private String credentials;
 
-    public List<ReservationDetails> getSavedDetails() {
+    public Map<String,ReservationDetails> getSavedDetails() {
         return savedDetails;
-    }
-
-    public void setSavedDetails(List<ReservationDetails> savedDetails) {
-        this.savedDetails = savedDetails;
     }
 
     public String getLastRouteId() {
@@ -48,15 +48,12 @@ public class LocalStorageSettings {
     }
 
     public void setLastReservationDetails(ReservationDetails rd) {
-        this.lastDetailsIndex = savedDetails.indexOf(rd);
+        this.lastDetails = rd.name();
     }
 
+    @JsonIgnore
     public Optional<ReservationDetails> getLastReservationDetails() {
-        try {
-            return Optional.of(savedDetails.get(lastDetailsIndex));
-        } catch (IndexOutOfBoundsException e) {
-            return Optional.empty();
-        }
+        return Optional.ofNullable(savedDetails.get(lastDetails));
     }
 
     public String getCredentials() {
