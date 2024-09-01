@@ -17,6 +17,8 @@ public class LoginView extends VVerticalLayout {
     public LoginView(Session session) {
         add(new H1("FoolFerries Sailor Login"));
         add(new RichText().withMarkDown("""
+        Log in with the account you use in booking.finferries.fi. You can't create an account directly here.
+        
         This very experimental app impersonates you in booking.finferries.fi and gives you a better UX. If you choose to 
         use this app, you should be aware that it is not an official app, and it is not endorsed by Finferries.
         Also you must accept the terms of the booking site. Also note that this app can easily break if

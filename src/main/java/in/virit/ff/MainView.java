@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Route
 public class MainView extends VVerticalLayout {
@@ -48,7 +50,7 @@ public class MainView extends VVerticalLayout {
     VSelect<Tour> tours = new VSelect<Tour>().withLabel("Tour")
             .withFullWidth();
 
-    VSelect<ReservationDetails> reservationDetails = new VSelect<ReservationDetails>()
+    VSelect<ReservationDetails> reservationDetailsSelect = new VSelect<ReservationDetails>()
             .withItemLabelGenerator(rd -> rd.name())
             .withMinWidth("300px");
 
@@ -86,7 +88,9 @@ public class MainView extends VVerticalLayout {
             to.setItems(harbors);
             updateTimes();
         });
-        FerryRoute.routes().stream().filter(r -> r.id().equals(session.getLocalStorageSettings().getLastRouteId())).findFirst().ifPresent(routeSelect::setValue);
+        FerryRoute.routes().stream()
+                .filter(r -> r.id().equals(session.getLocalStorageSettings().getLastRouteId()))
+                .findFirst().ifPresent(routeSelect::setValue);
         add(routeSelect);
         add(new VHorizontalLayout()
                         .withExpanded(from)
@@ -113,24 +117,28 @@ public class MainView extends VVerticalLayout {
         List<ReservationDetails> savedDetails = new ArrayList<>();
         savedDetails.addAll(values);
         savedDetails.add(newDetailsValue);
-        reservationDetails.setItems(savedDetails);
-        add(reservationDetails);
-        reservationDetails.addValueChangeListener(e -> {
+        reservationDetailsSelect.setItems(savedDetails);
+        add(reservationDetailsSelect);
+        reservationDetailsSelect.addValueChangeListener(e -> {
             if(e.getValue() == newDetailsValue) {
                 details.setOpened(true);
-            } else if(e.getValue() != null) {
+            }
+            if(e.getValue() != null) {
                 reservationDetailsForm.setEntity(e.getValue());
             }
+            validate();
         });
         if(savedDetails.size() > 1) {
-            session.getLocalStorageSettings().getLastReservationDetails().ifPresent(reservationDetails::setValue);
+            LocalStorageSettings localStorageSettings = session.getLocalStorageSettings();
+            Optional<ReservationDetails> lastReservationDetails = localStorageSettings.getLastReservationDetails();
+            lastReservationDetails.ifPresent(reservationDetailsSelect::setValue);
         } else {
-            reservationDetails.setValue(newDetailsValue);
+            reservationDetailsSelect.setValue(newDetailsValue);
         }
         //details.setSummaryText("Vehicle etc");
         details.setWidthFull();
         details.add(reservationDetailsForm);
-        add(reservationDetails,details);
+        add(reservationDetailsSelect,details);
 
         int hToid = session.getLocalStorageSettings().getLastHarborFromId();
         harbors.stream().filter(h -> h.id() == hToid).findFirst().ifPresent(to::setValue);
@@ -143,11 +151,6 @@ public class MainView extends VVerticalLayout {
                 Notification.show("No tours available for selected time");
             }
         });
-        updateTimes();
-        if(tours.getValue() == null) {
-            Notification.show("No tours available for today, date set for tomorrow");
-            datePicker.setValue(datePicker.getValue().plusDays(1));
-        }
         tours.focus();
 
         from.addValueChangeListener(e -> updateTimes());
@@ -160,7 +163,7 @@ public class MainView extends VVerticalLayout {
                     from.getValue(),
                     to.getValue(),
                     tours.getValue(),
-                    reservationDetails.getValue()
+                    reservationDetailsForm.getEntity()
             );
             session.saveLastTrip(routeSelect.getValue(), from.getValue(), to.getValue());
             Notification notification = new Notification();
@@ -182,6 +185,7 @@ public class MainView extends VVerticalLayout {
                     })));
             notification.open();
         }).withFullWidth();
+        book.setEnabled(false);
         book.setDisableOnClick(true);
         add(book);
 
@@ -191,6 +195,12 @@ public class MainView extends VVerticalLayout {
 
         add(new Anchor("https://github.com/mstahv/ffs/", "Source code & bug reports", AnchorTarget.BLANK));
 
+        updateTimes();
+        if(tours.getValue() == null) {
+            List<Tour> items = tours.getListDataView().getItems().toList();
+            Notification.show("No tours available for today, date set for tomorrow");
+            datePicker.setValue(datePicker.getValue().plusDays(1));
+        }
     }
 
     private void updateTimes() {
@@ -202,6 +212,20 @@ public class MainView extends VVerticalLayout {
         tours1.stream().filter(
                 t -> t.start().atDate(datePicker.getValue()).isAfter(bookingService.nowFinland())
         ).findFirst().ifPresent(tours::setValue);
+        validate();
+    }
+
+    public void validate() {
+        if(book == null) {
+            return;
+        }
+        ReservationDetails reservationDetails = reservationDetailsForm.getEntity();
+        if(tours.getValue() != null && reservationDetails.isValid()) {
+            book.setEnabled(true);
+        } else {
+            book.setEnabled(false);
+        }
+
     }
 
     public void selectReservationDetails(ReservationDetails rd) {
@@ -211,7 +235,7 @@ public class MainView extends VVerticalLayout {
         List<ReservationDetails> savedDetails = new ArrayList<>();
         savedDetails.addAll(values);
         savedDetails.add(newDetailsValue);
-        reservationDetails.setItems(savedDetails);
-        reservationDetails.setValue(rd);
+        reservationDetailsSelect.setItems(savedDetails);
+        reservationDetailsSelect.setValue(rd);
     }
 }

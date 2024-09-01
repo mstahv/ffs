@@ -39,6 +39,11 @@ public class ReservationDetailsForm extends BeanValidationForm<ReservationDetail
             session.saveReservationDetails(rd);
             findAncestor(MainView.class).selectReservationDetails(rd);
         });
+        getBinder().addValueChangeListener(e -> {
+            if (e.isFromClient()) {
+                findAncestor(MainView.class).validate();
+            }
+        });
     }
 
     @Override
