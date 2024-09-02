@@ -140,9 +140,9 @@ public class MainView extends VVerticalLayout {
         details.add(reservationDetailsForm);
         add(reservationDetailsSelect,details);
 
-        int hToid = session.getLocalStorageSettings().getLastHarborFromId();
+        int hToid = session.getLocalStorageSettings().getLastHarborToId();
         harbors.stream().filter(h -> h.id() == hToid).findFirst().ifPresent(to::setValue);
-        int hFromid = session.getLocalStorageSettings().getLastHarborToId();
+        int hFromid = session.getLocalStorageSettings().getLastHarborFromId();
         harbors.stream().filter(h -> h.id() == hFromid).findFirst().ifPresent(from::setValue);
         datePicker.setValue(bookingService.nowFinland().toLocalDate());
         datePicker.addValueChangeListener(e -> {
