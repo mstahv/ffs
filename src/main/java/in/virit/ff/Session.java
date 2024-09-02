@@ -337,11 +337,14 @@ Content-Disposition: form-data; name="finferries-vessel"
         UI.getCurrent().navigate(MainView.class);
     }
 
-    public void saveLastTrip(FerryRoute value, Harbor from, Harbor to) {
+    public void saveLastTrip(FerryRoute value, Harbor from, Harbor to, ReservationDetails reservationDetailsSelectValue) {
         getLocalStorageSettings().setLastRouteId(value.id());
         // Note, the order is reversed here on purpose, you'll probably want to go back to the same route next
         getLocalStorageSettings().setLastHarborFromId(to.id());
         getLocalStorageSettings().setLastHarborToId(from.id());
+        if(!"New...".equals(reservationDetailsSelectValue.name())) {
+            getLocalStorageSettings().setLastReservationDetails(reservationDetailsSelectValue);
+        }
         persistLocalStorageSettings();
     }
 }

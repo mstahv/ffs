@@ -122,8 +122,7 @@ public class MainView extends VVerticalLayout {
         reservationDetailsSelect.addValueChangeListener(e -> {
             if(e.getValue() == newDetailsValue) {
                 details.setOpened(true);
-            }
-            if(e.getValue() != null) {
+            } else if(e.getValue() != null) {
                 reservationDetailsForm.setEntity(e.getValue());
             }
             validate();
@@ -165,7 +164,7 @@ public class MainView extends VVerticalLayout {
                     tours.getValue(),
                     reservationDetailsForm.getEntity()
             );
-            session.saveLastTrip(routeSelect.getValue(), from.getValue(), to.getValue());
+            session.saveLastTrip(routeSelect.getValue(), from.getValue(), to.getValue(), reservationDetailsSelect.getValue());
             Notification notification = new Notification();
             notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             notification.setPosition(Notification.Position.MIDDLE);

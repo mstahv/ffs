@@ -48,12 +48,20 @@ public class LocalStorageSettings {
     }
 
     public void setLastReservationDetails(ReservationDetails rd) {
-        this.lastDetails = rd.name();
+        setLastDetails(rd.name());
+    }
+
+    public void setLastDetails(String lastDetails) {
+        this.lastDetails = lastDetails;
+    }
+
+    public String getLastDetails() {
+        return lastDetails;
     }
 
     @JsonIgnore
     public Optional<ReservationDetails> getLastReservationDetails() {
-        return Optional.ofNullable(savedDetails.get(lastDetails));
+        return Optional.ofNullable(savedDetails.get(getLastDetails()));
     }
 
     public String getCredentials() {
