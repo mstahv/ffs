@@ -20,6 +20,7 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.FormElement;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
@@ -33,6 +34,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -346,5 +348,52 @@ Content-Disposition: form-data; name="finferries-vessel"
             getLocalStorageSettings().setLastReservationDetails(reservationDetailsSelectValue);
         }
         persistLocalStorageSettings();
+    }
+
+
+    public record Reservation(int id, String status, String str) {}
+
+    public void cancelReservation(Reservation r) {
+        try {
+            HttpResponse<String> response = client.send(HttpRequest.newBuilder()
+                    .uri(URI.create("https://booking.finferries.fi/wp-json/finferries/v1/reservation/cancel/" + r.id))
+                    .POST(HttpRequest.BodyPublishers.noBody())
+                    .build(), HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() > 399) {
+                throw new RuntimeException("Failed to cancel reservation: " + response.statusCode());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+        public ArrayList<Reservation> fetchReservations() {
+        HttpResponse<String> response = null;
+        try {
+            response = client.send(HttpRequest.newBuilder()
+                    .uri(URI.create("https://booking.finferries.fi/my-account/"))
+                    .GET()
+                    .build(), HttpResponse.BodyHandlers.ofString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        String body = response.body();
+        var collected = new ArrayList<Reservation>();
+
+        Elements reservations = Jsoup.parse(body).select("div.em-block-reservation");
+        reservations.forEach(r -> {
+            int id = Integer.parseInt(r.attribute("data-id").getValue());
+            String status = r.attribute("data-status").getValue();
+            String text = r.text();
+            text = text.substring(text.indexOf("Päivä"));
+            text = text.substring(0, text.indexOf("Matkustajat"));
+            collected.add(new Reservation(id, status, text));
+        });
+        return collected;
     }
 }

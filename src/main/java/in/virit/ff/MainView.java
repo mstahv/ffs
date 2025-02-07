@@ -16,6 +16,7 @@ import in.virit.ff.bookingdtos.FerryRoute;
 import in.virit.ff.bookingdtos.Harbor;
 import in.virit.ff.bookingdtos.ReservationDetails;
 import in.virit.ff.bookingdtos.Tour;
+import org.vaadin.firitin.appframework.MenuItem;
 import org.vaadin.firitin.components.RichText;
 import org.vaadin.firitin.components.button.DefaultButton;
 import org.vaadin.firitin.components.button.VButton;
@@ -23,14 +24,15 @@ import org.vaadin.firitin.components.orderedlayout.VHorizontalLayout;
 import org.vaadin.firitin.components.orderedlayout.VVerticalLayout;
 import org.vaadin.firitin.components.select.VSelect;
 
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
-@Route
+@Route(layout = Layout.class)
+@MenuItem(title = "Book", order = MenuItem.BEGINNING)
 public class MainView extends VVerticalLayout {
     private final Session session;
     private final BookingService bookingService;
@@ -77,8 +79,6 @@ public class MainView extends VVerticalLayout {
     }
 
     public void init() {
-        add(new H1("FoolFerries 🤪"));
-        add(session.getUserName() + " " + bookingService.nowFinland().toLocalTime());
         reservationDetailsForm = new ReservationDetailsForm(session, bookingService);
         routeSelect.setItemLabelGenerator(FerryRoute::name);
         routeSelect.setItems(FerryRoute.routes());
@@ -188,6 +188,7 @@ public class MainView extends VVerticalLayout {
         book.setDisableOnClick(true);
         add(book);
 
+        add(session.getUserName() + " " + bookingService.nowFinland().toLocalTime().truncatedTo(ChronoUnit.SECONDS));
         add(new VButton("Reload session", e -> {
             session.reload();
         }).withThemeVariants(ButtonVariant.LUMO_TERTIARY));
