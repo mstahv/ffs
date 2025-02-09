@@ -7,6 +7,7 @@ import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.AnchorTarget;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -79,6 +80,7 @@ public class MainView extends VVerticalLayout {
     }
 
     public void init() {
+        add(new H3("FoolFerries 🤪"));
         reservationDetailsForm = new ReservationDetailsForm(session, bookingService);
         routeSelect.setItemLabelGenerator(FerryRoute::name);
         routeSelect.setItems(FerryRoute.routes());

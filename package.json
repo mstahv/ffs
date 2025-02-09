@@ -32,7 +32,7 @@
     "@vaadin/icon": "24.6.3",
     "@vaadin/icons": "24.6.3",
     "@vaadin/input-container": "24.6.3",
-    "@vaadin/integer-field": "24.5.2",
+    "@vaadin/integer-field": "24.6.3",
     "@vaadin/item": "24.6.3",
     "@vaadin/list-box": "24.6.3",
     "@vaadin/lit-renderer": "24.6.3",
@@ -45,7 +45,7 @@
     "@vaadin/number-field": "24.6.3",
     "@vaadin/overlay": "24.6.3",
     "@vaadin/password-field": "24.6.3",
-    "@vaadin/polymer-legacy-adapter": "24.5.2",
+    "@vaadin/polymer-legacy-adapter": "24.6.3",
     "@vaadin/popover": "24.6.3",
     "@vaadin/progress-bar": "24.6.3",
     "@vaadin/radio-group": "24.6.3",
@@ -70,13 +70,18 @@
     "@vaadin/virtual-list": "24.6.3",
     "construct-style-sheets-polyfill": "3.1.0",
     "date-fns": "2.29.3",
-    "lit": "3.2.1"
+    "lit": "3.2.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "6.28.0"
   },
   "devDependencies": {
     "@babel/preset-react": "7.26.3",
     "@preact/signals-react-transform": "0.5.0",
     "@rollup/plugin-replace": "6.0.2",
     "@rollup/pluginutils": "5.1.4",
+    "@types/react": "18.3.18",
+    "@types/react-dom": "18.3.5",
     "@vitejs/plugin-react": "4.3.4",
     "async": "3.2.6",
     "glob": "10.4.5",
@@ -159,7 +164,10 @@
     "lit": "$lit",
     "@polymer/polymer": "$@polymer/polymer",
     "@vaadin/vaadin-themable-mixin": "$@vaadin/vaadin-themable-mixin",
-    "date-fns": "$date-fns"
+    "date-fns": "$date-fns",
+    "react-dom": "$react-dom",
+    "react-router-dom": "$react-router-dom",
+    "react": "$react"
   },
   "vaadin": {
     "dependencies": {
@@ -192,7 +200,7 @@
       "@vaadin/icon": "24.6.3",
       "@vaadin/icons": "24.6.3",
       "@vaadin/input-container": "24.6.3",
-      "@vaadin/integer-field": "24.5.2",
+      "@vaadin/integer-field": "24.6.3",
       "@vaadin/item": "24.6.3",
       "@vaadin/list-box": "24.6.3",
       "@vaadin/lit-renderer": "24.6.3",
@@ -205,7 +213,7 @@
       "@vaadin/number-field": "24.6.3",
       "@vaadin/overlay": "24.6.3",
       "@vaadin/password-field": "24.6.3",
-      "@vaadin/polymer-legacy-adapter": "24.5.2",
+      "@vaadin/polymer-legacy-adapter": "24.6.3",
       "@vaadin/popover": "24.6.3",
       "@vaadin/progress-bar": "24.6.3",
       "@vaadin/radio-group": "24.6.3",
@@ -230,13 +238,18 @@
       "@vaadin/virtual-list": "24.6.3",
       "construct-style-sheets-polyfill": "3.1.0",
       "date-fns": "2.29.3",
-      "lit": "3.2.1"
+      "lit": "3.2.1",
+      "react": "18.3.1",
+      "react-dom": "18.3.1",
+      "react-router-dom": "6.28.0"
     },
     "devDependencies": {
       "@babel/preset-react": "7.26.3",
       "@preact/signals-react-transform": "0.5.0",
       "@rollup/plugin-replace": "6.0.2",
       "@rollup/pluginutils": "5.1.4",
+      "@types/react": "18.3.18",
+      "@types/react-dom": "18.3.5",
       "@vitejs/plugin-react": "4.3.4",
       "async": "3.2.6",
       "glob": "10.4.5",
@@ -251,6 +264,6 @@
       "workbox-core": "7.3.0",
       "workbox-precaching": "7.3.0"
     },
-    "hash": "5bb020640689c267aeac0984927ee9d15e2cdb7bc1a16de4c658192ab987eb46"
+    "hash": "d9ef4f301ddad2f21e1504eef085bec187421c94cf5ea6a02860f69b88a99fc0"
   }
 }
