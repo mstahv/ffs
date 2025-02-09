@@ -83,10 +83,12 @@ public class MainView extends VVerticalLayout {
         routeSelect.setItemLabelGenerator(FerryRoute::name);
         routeSelect.setItems(FerryRoute.routes());
         routeSelect.addValueChangeListener(e -> {
-            harbors = bookingService.getHarbors(routeSelect.getValue());
-            from.setItems(harbors);
-            to.setItems(harbors);
-            updateTimes();
+            if(e.getValue() != null) {
+                harbors = bookingService.getHarbors(routeSelect.getValue());
+                from.setItems(harbors);
+                to.setItems(harbors);
+                updateTimes();
+            }
         });
         FerryRoute.routes().stream()
                 .filter(r -> r.id().equals(session.getLocalStorageSettings().getLastRouteId()))
