@@ -46,6 +46,7 @@ public class ReservationsView extends VVerticalLayout {
         } else {
             init();
         }
+        setPadding(false);
     }
 
     public void init() {
