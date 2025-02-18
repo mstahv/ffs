@@ -51,15 +51,19 @@ public class ReservationsView extends VVerticalLayout {
     public void init() {
         removeAll();
         ArrayList<Session.Reservation> reservations = session.fetchReservations();
-        addAndExpand(new VGrid<Session.Reservation>(Session.Reservation.class) {{
+        addAndExpand(new VGrid<Session.Reservation>(Session.Reservation.class, false) {{
+            addColumn(r -> r.status() + " " + r.id())
+                    .setHeader("Status/id")
+                    .setFlexGrow(0)
+                    .setAutoWidth(true);
+            addColumn(r -> r.str())
+                    .setHeader("Details");
             addComponentColumn(r ->
                 new DeleteButton(() -> {
                     session.cancelReservation(r);
                     init();
                 })
-            ).setAutoWidth(true).setFlexGrow(0);
-            getColumnByKey("id").setAutoWidth(true).setFlexGrow(0);
-            getColumnByKey("status").setAutoWidth(true).setFlexGrow(0);
+            ).setAutoWidth(true).setFlexGrow(0).setHeader("Cancel");
             addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
             setItems(reservations);
         }});
