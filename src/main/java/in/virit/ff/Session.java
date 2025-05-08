@@ -341,13 +341,16 @@ Content-Disposition: form-data; name="finferries-vessel"
                 .addTextBody("finferries-harbor-to", to.id() + "")
                 .addTextBody("finferries-departure-date", yyyyMMdd.format(localDate))
                 .addTextBody("finferries-departure-time", tour.start().truncatedTo(ChronoUnit.MINUTES).toString())
+                .addTextBody("finferries-departure-time-harbor", tour.departureTimeHarbour())
+                .addTextBody("finferries-departure-time-is-estimate", tour.departureTimeIsEstimate() + "")
+                .addTextBody("finferries-tour-start-time", tour.tourStartTime())
                 .addTextBody("finferries-vehicle-type", rd.vehicleType().id() + "")
                 .addTextBody("finferries-license-plate", rd.licensePlate())
                 .addTextBody("finferries-pets", "false")
                 .addTextBody("finferries-dangerous-goods", "false")
                 .addTextBody("finferries-assistant", "false")
                 .addTextBody("finferries-animal-transport", "false")
-                .addTextBody("finferries-additional-comments", rd.comments())
+//                .addTextBody("finferries-additional-comments", rd.comments()) // Looks like this is not sent by the actual web app at all anymore
                 .addTextBody("finferries-restaurant-count", "0")
                 .addTextBody("finferries-vessel", tour.vesselId())
                 .build();

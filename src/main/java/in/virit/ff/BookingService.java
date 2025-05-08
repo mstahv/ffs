@@ -152,11 +152,14 @@ public class BookingService {
                 String harborId = fromNode.get("harbor").asText();
                 String time = fromNode.get("time").asText();
                 LocalTime localTime = LocalTime.parse(time);
+                String tourStartTime = tour.get("tour_start_time").asText();
                 String vesselName = tour.get("vessel").get("name").asText();
                 String vesselId = tour.get("vessel").get("id").asText();
                 JsonNode harbors = answer.getValue().get("harbors");
                 String startHarbor = harbors.get(harborId).get("name").asText();
                 String route = "";
+                String harborTime = "";
+                boolean isEstimate = false;
                 for(int j = 1; j< tour.get("tour").size(); j++) {
                     JsonNode toNode = tour.get("tour").get(j);
                     String toHarborId = toNode.get("harbor").asText();
@@ -166,8 +169,12 @@ public class BookingService {
                     if(!toTime.isEmpty()) {
                         route += " " + toTime;
                     }
+                    if(toHarborId.equals(""+from.id())) {
+                        harborTime = toTime; // this is empty string sometimes
+                        isEstimate = toNode.get("is_time_estimate").asBoolean();
+                    };
                 }
-                availableTours.add(new Tour(localTime,vesselId,vesselName, startHarbor, route));
+                availableTours.add(new Tour(localTime,vesselId,vesselName, startHarbor, route, harborTime, isEstimate, tourStartTime));
             };
             return availableTours;
         } catch (IOException e) {
