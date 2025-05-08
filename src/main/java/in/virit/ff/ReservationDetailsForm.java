@@ -25,8 +25,10 @@ public class ReservationDetailsForm extends BeanValidationForm<ReservationDetail
             .withItemLabelGenerator(VehicleType::name);
     private VIntegerField passengerCount = new VIntegerField("Passenger Count")
             .withValue(1);
+    private VTextField licensePlate = new VTextField("License Plate")
+            .withPlaceholder("");
     private VTextField comments = new VTextField("Comments")
-            .withPlaceholder("License plate etc...");
+            .withPlaceholder("Other details...");
 
     public ReservationDetailsForm(Session session, BookingService bookingService) {
         super(ReservationDetails.class);
@@ -51,6 +53,7 @@ public class ReservationDetailsForm extends BeanValidationForm<ReservationDetail
         List<Component> components = new ArrayList<>();
         components.add(vehicleType);
         components.add(passengerCount);
+        components.add(licensePlate);
         components.add(comments);
         // Feeling adventurous? Uncomment the following line in IDE or try to compile after it...
         // TODO: file a JDK bug to fix this

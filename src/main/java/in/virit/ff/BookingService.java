@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import in.virit.ff.bookingdtos.FerryRoute;
 import in.virit.ff.bookingdtos.Harbor;
+import in.virit.ff.bookingdtos.ReservationDetails;
 import in.virit.ff.bookingdtos.Tour;
 import in.virit.ff.bookingdtos.VehicleType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,12 +85,18 @@ public class BookingService {
     public static DateTimeFormatter yyyyMMdd =  DateTimeFormatter.ofPattern("yyyyMMdd");
 
     // https://booking.finferries.fi/wp-json/finferries/v1/tour/search?date=20240820&from=57&to=52
-    public List<Tour> getTours(LocalDate date, Harbor from, Harbor to) {
+    public List<Tour> getTours(LocalDate date, Harbor from, Harbor to, ReservationDetails reservationDetails) {
         HttpClient client = session.getClient();
 
         try {
             HttpResponse<String> response = client.send(HttpRequest.newBuilder()
-                    .uri(new URI("https://booking.finferries.fi/wp-json/finferries/v1/tour/search?date=" + yyyyMMdd.format(date) + "&from=" + from.id() + "&to=" + to.id()))
+                    .uri(new URI("https://booking.finferries.fi/wp-json/finferries/v1/tour/search?date=" + yyyyMMdd.format(date)
+                            + "&from=" + from.id()
+                            + "&to=" + to.id()
+                            + "&passenger_adult=" + reservationDetails.passengerCount()
+                            + "&passenger_child=" + 0 // TODO: add child count
+                            + "&vehicle_type=" + reservationDetails.vehicleType().id()
+                    ))
                     .GET()
                     .build(), HttpResponse.BodyHandlers.ofString());
 

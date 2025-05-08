@@ -55,11 +55,11 @@ public class VikenService {
                 .qos(MqttQos.AT_LEAST_ONCE)
                 .send();
 
-        Mqtt5AsyncClient async = c.toAsync();
+        var mqtt5AsyncClient = c.toAsync();
 
         ObjectMapper om = new ObjectMapper();
 
-        async.subscribe(Mqtt5Subscribe.builder()
+        mqtt5AsyncClient.subscribe(Mqtt5Subscribe.builder()
                 .topicFilter("vessels-v2/230987260/location")
                 .qos(MqttQos.EXACTLY_ONCE)
                 .build(),  mqtt5Publish -> {
@@ -69,7 +69,8 @@ public class VikenService {
             payload.get(arr);
             try {
                 var lastStatus = om.readValue(arr, VesselData.class);
-                listeners.forEach(l -> l.accept(lastStatus));
+                listeners.forEach((Consumer<VesselData> l) -> l.accept(lastStatus));
+                // A bit of history is maintained for new subscribers
                 lastStatuses.add(lastStatus);
                 if(lastStatuses.size() > 10) {
                     lastStatuses.removeFirst();

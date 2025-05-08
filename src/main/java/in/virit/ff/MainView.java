@@ -6,6 +6,7 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.AnchorTarget;
+import com.vaadin.flow.component.html.Emphasis;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -57,11 +58,12 @@ public class MainView extends VVerticalLayout {
             .withItemLabelGenerator(rd -> rd.name())
             .withMinWidth("300px");
 
-    ReservationDetails newDetailsValue = new ReservationDetails("New...", null, 1, "");
+    ReservationDetails newDetailsValue = new ReservationDetails("New...", null, 1, "", "");
     private ReservationDetailsForm reservationDetailsForm;
     private Details details;
     private List<Harbor> harbors;
     private VButton book;
+    private Emphasis validationMsg = new Emphasis("Fill in all fields to book. License plate is moved to a separate field 🧸.");
 
     public MainView(Session session, BookingService bookingService) {
         this.session = session;
@@ -191,6 +193,7 @@ public class MainView extends VVerticalLayout {
         book.setEnabled(false);
         book.setDisableOnClick(true);
         add(book);
+        add(validationMsg);
 
         add(session.getUserName() + " " + bookingService.nowFinland().toLocalTime().truncatedTo(ChronoUnit.SECONDS));
         add(new VButton("Reload session", e -> {
@@ -211,7 +214,11 @@ public class MainView extends VVerticalLayout {
         if(from.getValue() == null || to.getValue() == null || datePicker.getValue() == null) {
             return;
         }
-        List<Tour> tours1 = bookingService.getTours(datePicker.getValue(), from.getValue(), to.getValue());
+        ReservationDetails reservationDetails = reservationDetailsForm.getEntity();
+        List<Tour> tours1 = bookingService.getTours(
+                datePicker.getValue(), from.getValue(), to.getValue(),
+                reservationDetails
+        );
         this.tours.setItems(tours1);
         tours1.stream().filter(
                 t -> t.start().atDate(datePicker.getValue()).isAfter(bookingService.nowFinland())
@@ -226,8 +233,13 @@ public class MainView extends VVerticalLayout {
         ReservationDetails reservationDetails = reservationDetailsForm.getEntity();
         if(tours.getValue() != null && reservationDetails.isValid()) {
             book.setEnabled(true);
+            validationMsg.setVisible(false);
         } else {
             book.setEnabled(false);
+            validationMsg.setVisible(true);
+            if(!reservationDetails.isValid()) {
+                details.setOpened(true);
+            }
         }
 
     }

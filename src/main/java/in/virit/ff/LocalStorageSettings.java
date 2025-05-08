@@ -1,6 +1,7 @@
 package in.virit.ff;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.vaadin.flow.component.dependency.JsModule;
 import in.virit.ff.bookingdtos.ReservationDetails;
 
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class LocalStorageSettings {
 
     private Map<String,ReservationDetails> savedDetails = new LinkedHashMap<>();

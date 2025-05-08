@@ -244,6 +244,90 @@ Content-Disposition: form-data; name="finferries-vessel"
 
 406
 -----------------------------3952403640432312113951113417--
+
+
+
+2025-05-08
+
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="add-to-cart"
+
+35
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-line"
+
+2807
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-passenger-count"
+
+1
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-passenger-count_child"
+
+0
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-harbor-from"
+
+52
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-harbor-to"
+
+57
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-departure-date"
+
+20250508
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-departure-time"
+
+14:00
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-departure-time-harbor"
+
+14:00:00
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-departure-time-is-estimate"
+
+false
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-tour-start-time"
+
+14:00:00
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-vehicle-type"
+
+181
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-license-plate"
+
+NMK-152
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-pets"
+
+false
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-dangerous-goods"
+
+false
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-assistant"
+
+false
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-animal-transport"
+
+false
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-restaurant-count"
+
+0
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6
+Content-Disposition: form-data; name="finferries-vessel"
+
+406
+------geckoformboundarycd3ca730f9040a5eb73995a937800bd6--
+
+
         */
 
         HttpEntity entity = MultipartEntityBuilder.create()
@@ -252,11 +336,13 @@ Content-Disposition: form-data; name="finferries-vessel"
                 .addTextBody("add-to-cart", "35") // 35 is the product id for a ferry trip ??
                 .addTextBody("finferries-line", fr.id())
                 .addTextBody("finferries-passenger-count", rd.passengerCount() + "")
+                .addTextBody("finferries-passenger-count_child", "0") // TODO: add child count
                 .addTextBody("finferries-harbor-from", from.id() + "")
                 .addTextBody("finferries-harbor-to", to.id() + "")
                 .addTextBody("finferries-departure-date", yyyyMMdd.format(localDate))
                 .addTextBody("finferries-departure-time", tour.start().truncatedTo(ChronoUnit.MINUTES).toString())
                 .addTextBody("finferries-vehicle-type", rd.vehicleType().id() + "")
+                .addTextBody("finferries-license-plate", rd.licensePlate())
                 .addTextBody("finferries-pets", "false")
                 .addTextBody("finferries-dangerous-goods", "false")
                 .addTextBody("finferries-assistant", "false")
