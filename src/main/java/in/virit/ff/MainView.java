@@ -7,7 +7,6 @@ import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.AnchorTarget;
 import com.vaadin.flow.component.html.Emphasis;
-import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -26,10 +25,12 @@ import org.vaadin.firitin.components.orderedlayout.VHorizontalLayout;
 import org.vaadin.firitin.components.orderedlayout.VVerticalLayout;
 import org.vaadin.firitin.components.select.VSelect;
 
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -66,6 +67,7 @@ public class MainView extends VVerticalLayout {
     private Emphasis validationMsg = new Emphasis("Fill in all fields to book. License plate is moved to a separate field 🧸.");
 
     public MainView(Session session, BookingService bookingService) {
+        datePicker.setI18n(new DatePicker.DatePickerI18n().setFirstDayOfWeek(1));
         this.session = session;
         this.bookingService = bookingService;
         if (!session.isLoggedIn()) {
