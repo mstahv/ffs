@@ -160,16 +160,18 @@ public class BookingService {
                 String route = "";
                 String harborTime = "";
                 boolean isEstimate = false;
+                boolean fromHarbourFound = false;
                 for(int j = 1; j< tour.get("tour").size(); j++) {
                     JsonNode toNode = tour.get("tour").get(j);
-                    String toHarborId = toNode.get("harbor").asText();
-                    String harbourName = harbors.get(toHarborId).get("name").asText();
+                    String currentHarborId = toNode.get("harbor").asText();
+                    String harbourName = harbors.get(currentHarborId).get("name").asText();
                     route += "→" + harbourName;
                     String toTime = toNode.get("time").asText();
                     if(!toTime.isEmpty()) {
                         route += " " + toTime;
                     }
-                    if(toHarborId.equals(""+from.id())) {
+                    if(currentHarborId.equals(""+from.id()) && !fromHarbourFound) {
+                        fromHarbourFound = true;
                         harborTime = toTime; // this is empty string sometimes
                         isEstimate = toNode.get("is_time_estimate").asBoolean();
                     };
