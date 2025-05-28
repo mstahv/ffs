@@ -161,11 +161,15 @@ public class BookingService {
                 String harborTime = "";
                 boolean isEstimate = false;
                 boolean fromHarbourFound = false;
-                for(int j = 1; j< tour.get("tour").size(); j++) {
+                for(int j = 0; j< tour.get("tour").size(); j++) {
                     JsonNode toNode = tour.get("tour").get(j);
                     String currentHarborId = toNode.get("harbor").asText();
                     String harbourName = harbors.get(currentHarborId).get("name").asText();
-                    route += "→" + harbourName;
+                    if(j > 0) {
+                        route += "→" + harbourName;
+                    } else {
+                        route += harbourName;
+                    }
                     String toTime = toNode.get("time").asText();
                     if(!toTime.isEmpty()) {
                         route += " " + toTime;
