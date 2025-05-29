@@ -161,6 +161,9 @@ public class BookingService {
                 String harborTime = "";
                 boolean isEstimate = false;
                 boolean fromHarbourFound = false;
+                // Since Summer 2025, rest endpoint returns some invalid ours as well, so we need to check that
+                // both from and to harbors are in the list of harbors
+                boolean toHarbourFound = false;
                 for(int j = 0; j< tour.get("tour").size(); j++) {
                     JsonNode toNode = tour.get("tour").get(j);
                     String currentHarborId = toNode.get("harbor").asText();
@@ -171,14 +174,25 @@ public class BookingService {
                         route += harbourName;
                     }
                     String toTime = toNode.get("time").asText();
+                    boolean estimate = toNode.get("is_time_estimate").asBoolean();
                     if(!toTime.isEmpty()) {
-                        route += " " + toTime;
+                        route += " ";
+                        if(estimate) {
+                            route += "~";
+                        }
+                        route += toTime;
+                    }
+                    if(currentHarborId.equals(""+to.id()) && fromHarbourFound) {
+                        toHarbourFound = true;
                     }
                     if(currentHarborId.equals(""+from.id()) && !fromHarbourFound) {
                         fromHarbourFound = true;
                         harborTime = toTime; // this is empty string sometimes
-                        isEstimate = toNode.get("is_time_estimate").asBoolean();
+                        isEstimate = estimate;
                     };
+                }
+                if(!fromHarbourFound || !toHarbourFound) {
+                    continue; // skip this tour, it does not start from the requested harbor
                 }
                 availableTours.add(new Tour(localTime,vesselId,vesselName, startHarbor, route, harborTime, isEstimate, tourStartTime));
             };
