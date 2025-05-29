@@ -85,8 +85,8 @@ public class MainView extends VVerticalLayout {
 
     public void init() {
         add(new H3("FoolFerries 🤪"));
-        add(new Emphasis("Varsinainen FF sovellus muuttunut, mistä johtuen FoolFerriesissä saattaa olla käyttöhäiriöitä, takuukorjaukset käynnissä 🧸 Varaa booking.finferries.fi kautta jos et saa vahvistusta varauksen lähetyksen jälkeen.") {{
-            getStyle().setColor("orange");
+        add(new Emphasis("Bugit pitäisi olla korjattu 🧸") {{
+            getStyle().setColor("green");
         }});
         reservationDetailsForm = new ReservationDetailsForm(session, bookingService);
         routeSelect.setItemLabelGenerator(FerryRoute::name);
