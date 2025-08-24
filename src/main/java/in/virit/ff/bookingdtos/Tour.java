@@ -9,7 +9,8 @@ public record Tour(LocalTime start,
                    String route,
                    String departureTimeHarbour,
                    boolean departureTimeIsEstimate,
-                   String tourStartTime
+                   String tourStartTime,
+                   Capacity capacity
 ) {
 
     @Override

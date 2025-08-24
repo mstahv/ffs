@@ -1,17 +1,23 @@
 package in.virit.ff;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.AnchorTarget;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Emphasis;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
 import in.virit.ff.bookingdtos.FerryRoute;
 import in.virit.ff.bookingdtos.Harbor;
@@ -19,11 +25,13 @@ import in.virit.ff.bookingdtos.ReservationDetails;
 import in.virit.ff.bookingdtos.Tour;
 import org.vaadin.firitin.appframework.MenuItem;
 import org.vaadin.firitin.components.RichText;
+import org.vaadin.firitin.components.badge.Badge;
 import org.vaadin.firitin.components.button.DefaultButton;
 import org.vaadin.firitin.components.button.VButton;
 import org.vaadin.firitin.components.orderedlayout.VHorizontalLayout;
 import org.vaadin.firitin.components.orderedlayout.VVerticalLayout;
 import org.vaadin.firitin.components.select.VSelect;
+import org.vaadin.firitin.layouts.HorizontalFloatLayout;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -78,7 +86,22 @@ public class MainView extends VVerticalLayout {
 
          tours.withItemEnabledProvider(t ->
             t.start().atDate(datePicker.getValue()).isAfter(bookingService.nowFinland())
+                 && t.capacity().cargo().can_book()
         );
+        tours.setRenderer( new ComponentRenderer<Component, Tour>(t ->{
+            return new Span(){{
+                add(t + " ");
+                Badge badge = new Badge(" " + t.capacity().cargo().current() + "/" + t.capacity().cargo().max())
+                        .withTheme(Badge.Theme.PILL);
+                add(badge);
+                    if(t.capacity().cargo().can_autoload()) {
+                        badge.withTheme(Badge.Theme.SUCCESS);
+                    } else if(t.capacity().cargo().can_book()) {
+                    } else {
+                        badge.withTheme(Badge.Theme.ERROR);
+                    }
+            }};
+        }));
 
         setAlignItems(FlexComponent.Alignment.CENTER);
     }
@@ -118,7 +141,9 @@ public class MainView extends VVerticalLayout {
         add(tours);
         tours.addValueChangeListener(e -> {
             if(e.getValue() != null) {
-                tours.setHelperText(e.getValue().route());
+                String capacity = e.getValue().capacity().cargo().current() + "/" + e.getValue().capacity().cargo().max()
+                        + " " + e.getValue().capacity().passenger().current() + "/" + e.getValue().capacity().passenger().max() + "";
+                tours.setHelperText(e.getValue().route() + " Capacity:"  + capacity);
             }
         });
 

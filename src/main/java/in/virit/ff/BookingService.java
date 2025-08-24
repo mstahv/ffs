@@ -3,6 +3,7 @@ package in.virit.ff;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import in.virit.ff.bookingdtos.Capacity;
 import in.virit.ff.bookingdtos.FerryRoute;
 import in.virit.ff.bookingdtos.Harbor;
 import in.virit.ff.bookingdtos.ReservationDetails;
@@ -31,6 +32,8 @@ import java.util.Map;
 @ApplicationScope
 @Service
 public class BookingService {
+
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     private Session session;
@@ -194,7 +197,9 @@ public class BookingService {
                 if(!fromHarbourFound || !toHarbourFound) {
                     continue; // skip this tour, it does not start from the requested harbor
                 }
-                availableTours.add(new Tour(localTime,vesselId,vesselName, startHarbor, route, harborTime, isEstimate, tourStartTime));
+                String capacityJson = tour.get("capacity").toString();
+                Capacity capacity = objectMapper.readValue(capacityJson, Capacity.class);
+                availableTours.add(new Tour(localTime,vesselId,vesselName, startHarbor, route, harborTime, isEstimate, tourStartTime, capacity));
             };
             return availableTours;
         } catch (IOException e) {
