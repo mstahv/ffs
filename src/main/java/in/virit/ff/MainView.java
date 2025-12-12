@@ -7,7 +7,6 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.AnchorTarget;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Emphasis;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
@@ -15,9 +14,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.router.Route;
 import in.virit.ff.bookingdtos.FerryRoute;
 import in.virit.ff.bookingdtos.Harbor;
@@ -31,14 +28,11 @@ import org.vaadin.firitin.components.button.VButton;
 import org.vaadin.firitin.components.orderedlayout.VHorizontalLayout;
 import org.vaadin.firitin.components.orderedlayout.VVerticalLayout;
 import org.vaadin.firitin.components.select.VSelect;
-import org.vaadin.firitin.layouts.HorizontalFloatLayout;
 
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -108,8 +102,8 @@ public class MainView extends VVerticalLayout {
 
     public void init() {
         add(new H3("FoolFerries 🤪"));
-        add(new Emphasis("Bugit pitäisi olla korjattu 🧸") {{
-            getStyle().setColor("green");
+        add(new Emphasis("Nyt ne on taas sen rikkonut 🤬 Varaukset ei mee läpi. Täytyy koitttaa ehtiä korjaamaan...") {{
+            getStyle().setColor("red");
         }});
         reservationDetailsForm = new ReservationDetailsForm(session, bookingService);
         routeSelect.setItemLabelGenerator(FerryRoute::name);
