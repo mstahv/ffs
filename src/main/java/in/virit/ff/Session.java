@@ -345,6 +345,13 @@ Content-Disposition: form-data; name="finferries-vessel"
                 .addTextBody("finferries-departure-time-is-estimate", tour.departureTimeIsEstimate() + "")
                 .addTextBody("finferries-tour-start-time", tour.tourStartTime())
                 .addTextBody("finferries-vehicle-type", rd.vehicleType().id() + "")
+                /* 2025-12, apparently API adding multi vehicle support, this needed now (in addition to above
+                * ------geckoformboundary7a6a1316a6d41119cfe8617b36bc2135
+                * Content-Disposition: form-data; name="finferries-vehicle-types"
+                * [{"id":175,"license_plate":"IRJ-539"}]
+                *
+                * */
+                .addTextBody("finferries-vehicle-types", "[{\"id\":%s,\"license_plate\":\"%s\"}]".formatted(rd.vehicleType().id(), rd.licensePlate()))
                 .addTextBody("finferries-license-plate", rd.licensePlate())
                 .addTextBody("finferries-pets", "false")
                 .addTextBody("finferries-dangerous-goods", "false")
@@ -383,6 +390,7 @@ Content-Disposition: form-data; name="finferries-vessel"
 
             });
             String bodyHtml = response.body();
+            System.out.println(bodyHtml);
             // Only needed for XHR confirmation, not needed for form submit
             // Extract security nonce like this from the body: "update_order_review_nonce":"e9ec9c0cb3"
             // String securityNonce = StringUtils.substringBetween(bodyHtml, "\"update_order_review_nonce\":\"", "\"");
